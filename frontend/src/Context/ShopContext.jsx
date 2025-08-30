@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
+import { getImageUrl } from '../utils/getImageUrl'; // ✅ Import utility
 
 // Create context
 export const ShopContext = createContext(null);
@@ -12,7 +13,7 @@ const getDefaultCart = () => {
     return cart;
 };
 
-// Backend URL (live Render backend)
+// Backend URL
 const BACKEND_URL = 'https://e-commerce-backend-plor.onrender.com';
 
 const ShopContextProvider = (props) => {
@@ -25,10 +26,10 @@ const ShopContextProvider = (props) => {
         fetch(`${BACKEND_URL}/allproducts`)
             .then((res) => res.json())
             .then((data) => {
-                // Add full image URL to each product
+                // ✅ Use utility for product image
                 const productsWithURL = data.map((product) => ({
                     ...product,
-                    image: `${BACKEND_URL}/images/${product.image}`,
+                    image: getImageUrl(product.image),
                 }));
                 setAll_Product(productsWithURL);
             })
