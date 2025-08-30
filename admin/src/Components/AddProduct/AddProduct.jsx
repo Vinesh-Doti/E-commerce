@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './AddProduct.css';
 import upload_area from '../../assets/upload_area.svg';
+import { getImageUrl } from '../../utils/getImageUrl'; // ✅ helper for image URL
 
 const BACKEND_URL = 'https://e-commerce-backend-plor.onrender.com';
 
@@ -34,7 +35,7 @@ const AddProduct = () => {
     try {
       // Upload image first
       const formData = new FormData();
-      formData.append('image', image); // Use key 'image' as backend expects
+      formData.append('image', image); 
 
       const uploadResp = await fetch(`${BACKEND_URL}/upload`, {
         method: 'POST',
@@ -48,8 +49,9 @@ const AddProduct = () => {
         return;
       }
 
-      // Update product object with uploaded image URL
-      const product = { ...productDetails, image: uploadData.image_url };
+      // Use only the filename for consistency with getImageUrl
+      const filename = uploadData.image_url.split('/').pop();
+      const product = { ...productDetails, image: filename };
 
       // Add product
       const addResp = await fetch(`${BACKEND_URL}/addproduct`, {
