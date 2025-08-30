@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './NewCollections.css';
 import Item from '../Item/Item';
-import { getImageUrl } from '../../../../utils/getImageUrl'; // ✅ import utility
+import { getImageUrl } from '../../utils/getImageUrl';
 
 const NewCollections = () => {
   const [newCollection, setNewCollection] = useState([]);
