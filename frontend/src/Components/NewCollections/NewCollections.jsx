@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './NewCollections.css';
 import Item from '../Item/Item';
-
-// Use your deployed backend URL
-const BACKEND_URL = 'https://e-commerce-backend-plor.onrender.com';
+import { getImageUrl } from '../../utils/getImageUrl'; // ✅ import utility
 
 const NewCollections = () => {
   const [newCollection, setNewCollection] = useState([]);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/newcollections`)
+    fetch('https://e-commerce-backend-plor.onrender.com/newcollections')
       .then((response) => response.json())
-      .then((data) => setNewCollection(data))
+      .then((data) => {
+        // ✅ convert image filenames to full URLs
+        const productsWithURL = data.map((product) => ({
+          ...product,
+          image: getImageUrl(product.image),
+        }));
+        setNewCollection(productsWithURL);
+      })
       .catch((error) => console.error('Error fetching new collections:', error));
   }, []);
 
@@ -25,7 +30,7 @@ const NewCollections = () => {
             key={i}
             id={item.id}
             name={item.name}
-            image={item.image} // if backend returns only filename, prepend BACKEND_URL
+            image={item.image} // ✅ now full URL
             new_price={item.new_price}
             old_price={item.old_price}
           />
@@ -36,4 +41,3 @@ const NewCollections = () => {
 };
 
 export default NewCollections;
-
