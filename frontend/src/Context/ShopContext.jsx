@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { getImageUrl } from '../../../utils/getImageUrl'; // ✅ Import utility
+import { getImageUrl } from '../utils/getImageUrl';
+
 
 // Create context
 export const ShopContext = createContext(null);
