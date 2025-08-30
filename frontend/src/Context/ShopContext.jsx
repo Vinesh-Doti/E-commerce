@@ -1,140 +1,135 @@
 import React, { createContext, useEffect, useState } from 'react';
 
+// Create context
 export const ShopContext = createContext(null);
 
+// Default cart with all item counts set to 0
 const getDefaultCart = () => {
     let cart = {};
-    for (let index = 0; index < 300 + 1; index++) {
+    for (let index = 0; index <= 300; index++) {
         cart[index] = 0;
     }
     return cart;
 };
 
+// Backend URL (live Render backend)
+const BACKEND_URL = 'https://e-commerce-backend-plor.onrender.com';
+
 const ShopContextProvider = (props) => {
     const [all_product, setAll_Product] = useState([]);
     const [cartItems, setCartItems] = useState(getDefaultCart());
 
-    // Fetch products
+    // Fetch products and cart
     useEffect(() => {
-        fetch('https://e-commerce-backend-plor.onrender.com/allproducts')
-            .then((response) => response.json())
-            .then((data) => setAll_Product(data));
+        // Fetch all products
+        fetch(`${BACKEND_URL}/allproducts`)
+            .then((res) => res.json())
+            .then((data) => {
+                // Add full image URL to each product
+                const productsWithURL = data.map((product) => ({
+                    ...product,
+                    image: `${BACKEND_URL}/images/${product.image}`,
+                }));
+                setAll_Product(productsWithURL);
+            })
+            .catch((err) => console.error('Error fetching products:', err));
 
-        // Fetch cart if user is logged in
-        if (localStorage.getItem('auth-token')) {
-            fetch('https://e-commerce-backend-plor.onrender.com/getcart', {
+        // Fetch user's cart if logged in
+        const token = localStorage.getItem('auth-token');
+        if (token) {
+            fetch(`${BACKEND_URL}/getcart`, {
                 method: 'GET',
                 headers: {
                     Accept: 'application/json',
-                    'auth-token': localStorage.getItem('auth-token'),
+                    'auth-token': token,
                     'Content-Type': 'application/json',
                 },
             })
-                .then((response) => response.json())
+                .then((res) => res.json())
                 .then((data) => setCartItems(data.cartData || getDefaultCart()))
-                .catch((error) => console.error('Error fetching cart:', error));
+                .catch((err) => console.error('Error fetching cart:', err));
         }
     }, []);
 
+    // Add to cart
     const addToCart = (itemId) => {
         setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
-        if (localStorage.getItem('auth-token')) {
-            fetch('https://e-commerce-backend-plor.onrender.com/addtocart', {
+
+        const token = localStorage.getItem('auth-token');
+        if (token) {
+            fetch(`${BACKEND_URL}/addtocart`, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
-                    'auth-token': localStorage.getItem('auth-token'),
+                    'auth-token': token,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ itemId: itemId.toString() }),
             })
-                .then((response) => {
-                    console.log("AddToCart - Response status:", response.status);
-                    console.log("AddToCart - Response headers:", [...response.headers.entries()]);
-                    return response.json().catch((err) => {
-                        throw new Error(`JSON parsing error: ${err.message}`);
-                    });
-                })
+                .then((res) => res.json())
                 .then((data) => {
-                    console.log("AddToCart - Response data:", data);
-                    if (data.success) {
-                        setCartItems(data.cartData); // Sync with backend
-                        console.log("Cart updated successfully:", data.cartData);
-                    } else {
-                        console.error('Error adding to cart:', data.error);
-                        alert('Failed to add to cart: ' + data.error);
-                    }
+                    if (data.success) setCartItems(data.cartData);
                 })
-                .catch((error) => {
-                    console.error('Error in addToCart:', error.message);
-                    alert('Error adding to cart: ' + error.message);
-                });
+                .catch((err) => console.error('Error adding to cart:', err));
         }
     };
-    
+
+    // Remove from cart
     const removeFromCart = (itemId) => {
         setCartItems((prev) => ({
             ...prev,
-            [itemId]: Math.max((prev[itemId] || 0) - 1, 0), // Prevent negative quantities
+            [itemId]: Math.max((prev[itemId] || 0) - 1, 0),
         }));
-        if (localStorage.getItem('auth-token')) {
-            fetch('https://e-commerce-backend-plor.onrender.com/removefromcart', {
+
+        const token = localStorage.getItem('auth-token');
+        if (token) {
+            fetch(`${BACKEND_URL}/removefromcart`, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
-                    'auth-token': localStorage.getItem('auth-token'),
+                    'auth-token': token,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ itemId: itemId.toString() }),
             })
-                .then((response) => {
-                    console.log("RemoveFromCart - Response status:", response.status);
-                    console.log("RemoveFromCart - Response headers:", [...response.headers.entries()]);
-                    return response.json().catch((err) => {
-                        throw new Error(`JSON parsing error: ${err.message}`);
-                    });
-                })
+                .then((res) => res.json())
                 .then((data) => {
-                    console.log("RemoveFromCart - Response data:", data);
-                    if (data.success) {
-                        setCartItems(data.cartData); // Sync with backend
-                        console.log("Cart updated successfully:", data.cartData);
-                    } else {
-                        console.error('Error removing from cart:', data.error);
-                        alert('Failed to remove from cart: ' + data.error);
-                    }
+                    if (data.success) setCartItems(data.cartData);
                 })
-                .catch((error) => {
-                    console.error('Error in removeFromCart:', error.message);
-                    alert('Error removing from cart: ' + error.message);
-                });
+                .catch((err) => console.error('Error removing from cart:', err));
         }
     };
 
+    // Total cart amount
     const getTotalCartAmount = () => {
-        let totalAmount = 0;
+        let total = 0;
         for (const item in cartItems) {
             if (cartItems[item] > 0) {
-                let itemInfo = all_product.find((product) => product.id === Number(item));
-                if (itemInfo) {
-                    totalAmount += itemInfo.new_price * cartItems[item];
-                }
+                const product = all_product.find((p) => p.id === Number(item));
+                if (product) total += product.new_price * cartItems[item];
             }
         }
-        return totalAmount;
+        return total;
     };
 
+    // Total cart items
     const getTotalCartItems = () => {
-        let totalItem = 0;
+        let total = 0;
         for (const item in cartItems) {
-            if (cartItems[item] > 0) {
-                totalItem += cartItems[item];
-            }
+            total += cartItems[item] || 0;
         }
-        return totalItem;
+        return total;
     };
 
-    const contextValue = { getTotalCartItems, getTotalCartAmount, all_product, cartItems, addToCart, removeFromCart };
+    // Context value
+    const contextValue = {
+        all_product,
+        cartItems,
+        addToCart,
+        removeFromCart,
+        getTotalCartAmount,
+        getTotalCartItems,
+    };
 
     return (
         <ShopContext.Provider value={contextValue}>
