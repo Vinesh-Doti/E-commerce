@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import './ListProduct.css'
 import cross_icon from '../../assets/cross_icon.png'
+import { getImageUrl } from '../../utils/getImageUrl'   // ✅ import util
+import BASE_URL from '../../utils/getImageUrl'          // ✅ reuse backend url
 
 const ListProduct = () => {
   const [allproducts, setAllProducts] = useState([]);
-
-  const BASE_URL = "https://e-commerce-backend-plor.onrender.com";
 
   const fetchInfo = async () => {
     try {
@@ -54,11 +54,7 @@ const ListProduct = () => {
           <React.Fragment key={index}>
             <div className="listproduct-format-main listproduct-format">
               <img
-                src={
-                  product.image.startsWith("http")
-                    ? product.image
-                    : `${BASE_URL}/images/${product.image}`
-                }
+                src={getImageUrl(product.image)}   // ✅ clean usage
                 alt={product.name}
                 className='listproduct-product-icon'
               />
