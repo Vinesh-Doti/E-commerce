@@ -1,17 +1,9 @@
-// src/utils/getImageUrl.js
-const BASE = 'https://e-commerce-backend-plor.onrender.com';
+// frontend/src/utils/getImageUrl.js
 
-export default function getImageUrl(image) {
-  if (!image) return ''; // no image
+const BACKEND_URL = 'https://e-commerce-backend-plor.onrender.com';
 
-  // If it's already an absolute URL (http/https)
-  if (/^https?:\/\//i.test(image)) {
-    // Replace any localhost URL with live backend
-    return image.replace(/^https?:\/\/localhost:4000/i, BASE);
-  }
-
-  // Otherwise treat it as a filename or relative path and build the full URL
-  // remove leading slashes if any
-  const filename = image.replace(/^\/+/, '');
-  return `${BASE}/images/${filename}`;
-}
+export const getImageUrl = (imagePath) => {
+  // If imagePath already starts with http(s), return as-is
+  if (!imagePath) return '';
+  return imagePath.startsWith('http') ? imagePath : `${BACKEND_URL}/images/${imagePath}`;
+};
