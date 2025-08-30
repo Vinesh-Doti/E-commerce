@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './Popular.css';
 import Item from '../Item/Item';
-import { getImageUrl } from '../../utils/getImageUrl'; // ✅ import utility
+import { getImageUrl } from '../../../../src/utils/getImageUrl';
 
 const Popular = () => {
   const [popularProducts, setPopularProducts] = useState([]);
