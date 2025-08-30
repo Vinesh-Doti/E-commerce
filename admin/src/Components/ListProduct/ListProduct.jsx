@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import './ListProduct.css'
-import cross_icon from '../../assets/cross_icon.png'
-import { getImageUrl } from '../../utils/getImageUrl'   // ✅ import util
-import BASE_URL from '../../utils/getImageUrl'          // ✅ reuse backend url
+import React, { useEffect, useState } from 'react';
+import './ListProduct.css';
+import cross_icon from '../../assets/cross_icon.png';
+import { getImageUrl } from '../../utils/getImageUrl';   // ✅ named import
 
 const ListProduct = () => {
   const [allproducts, setAllProducts] = useState([]);
+
+  const BASE_URL = 'https://e-commerce-backend-plor.onrender.com'; // ✅ use URL directly here
 
   const fetchInfo = async () => {
     try {
@@ -54,7 +55,7 @@ const ListProduct = () => {
           <React.Fragment key={index}>
             <div className="listproduct-format-main listproduct-format">
               <img
-                src={getImageUrl(product.image)}   // ✅ clean usage
+                src={getImageUrl(product.image)}   // ✅ use helper function for image
                 alt={product.name}
                 className='listproduct-product-icon'
               />
@@ -74,7 +75,7 @@ const ListProduct = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ListProduct
+export default ListProduct;
